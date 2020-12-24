@@ -5,7 +5,7 @@ G = nx.Graph()
 #se puede hacer un una sola iteracion -> la momento de extraer los datos se puede agregar al grafo
 # los horarios se deben separar para poder se procesados en el grafo
 
-#"catedra":"LU JU 14:00 - 15:20" ||| 05 ->>
+#"catedra":"LU JU 14:00 - 15:20" ||| 05 ->> cat1  "LU 14:00" | cat2 JU 14:00
 # 
 lista_secciones = [
 	{'codigo':"CBF1000_CA05",'nombre':"MECÁNICA", 'seccion':"Sección 5", "horario":["LU 14:00","JU 14:00","VI 14:00"], "profesor": "EREMEEV VITALIE"},
@@ -13,8 +13,23 @@ lista_secciones = [
 	{'codigo':"CBF1000_CA010",'nombre':"MECÁNICA", 'seccion':"Sección 7", "horario":["LU 14:00","JU 14:00","VI 14:00"] ,"profesor": "LEON ALEJANDRO"}
 	]
 
-for elem in lista_secciones:
-	G.add_nodes_from([(elem["codigo"],{"nombre": elem["nombre"],"seccion":elem["seccion"],"horario":elem["horario"]})])
+
+#crear encuesta !!
+
+#definir que significa cada posicion de este arreglo -> ejemplo la posicion 0 es que tanto le gustan los ramos a las 8.30
+value_encuesta ={"ramos_830":1,"ventanas":3, "dificil": 2, "profesores":3} # estas variables son las respuestas de la encuesta de las preferencias del alumno
+def get_peso(value_encuesta,node):
+	#pensar bien esto
+	#if node["horario"] == "8:00" # usar regex para ver esto
+	peso_ponderado += value_encuesta["ramos_830"] *4 + value_encuesta["ventanas"]*3 + value_encuesta["dificil"] * 3 + value_encuesta["profesores"] * 2 
+	#esto no esta bien
+	return peso_ponderado
+
+#asignar pesos a los nodos
+
+for elem in lista_secciones: #aca se deberia asignar los pesos a los nodos.
+
+	G.add_nodes_from([(elem["codigo"],{ "nombre": elem["nombre"],"seccion":elem["seccion"],"horario":elem["horario"],"peso":peso })])
 
 # verificar por nombre de ramo, dos secciones del mismo ramo no pueden ser adyacente (no deben estar conectados)
 # verificar por horario de catedra y ayudantia
@@ -46,3 +61,4 @@ for i  in range (lenth_graph):
 					
 			else:
 				print(list_node[i][0], "Y",list_node[j][0], "-> no")
+
