@@ -54,19 +54,24 @@ rows = len(asignaturasNoCursadas)
 
 idRamo = []
 ramosAbre = []
+semestreCurso = []
 
 for aux in range(rows):
 
     idRamo.append(asignaturasNoCursadas[aux][0])
     ramosAbre.append(asignaturasNoCursadas[aux][3])
+    semestreCurso.append(asignaturasNoCursadas[aux][4])
 
     idAux = idRamo[aux]
     stringAux = ramosAbre[aux]
+    semestreAux = semestreCurso[aux]
 
     if isinstance(stringAux, str):
         stringAux = [int(s) for s in stringAux.split(',')]   #convierte string de numeros a arreglo o lista
     #print(stringAux)
-    PERT.add_nodes_from([idAux], abre=stringAux)
+    PERT.add_nodes_from([idAux], abre=stringAux, semestre=semestreAux)
+
+#print(PERT.nodes.data())
 
 rows2 = len(idRamo)
 
@@ -96,37 +101,63 @@ for aux2 in range(rows2):
 #plt.show()
 
 #Comienzan a establecerse los nodos criticos, los que deben cumplir con las 4 condiciones 
+if semestre < 9:
+    for elem in list(PERT.nodes):
+        contador = 0
+        lista = list(PERT.successors(elem))
+        #auxlist1 = []
+        #auxlist2 = []
 
-for elem in list(PERT.nodes):
-    contador = 0
-    lista = list(PERT.successors(elem))
+    #condicion 1: que el ramo sea prerrequisito
+    #out_degree entrega el numero de aristas que salen del nodo. Si es 0, el nodo no tiene hijos. PRIMERA CONDICIÓN LISTA
+    #PERT[elem2] indica que ramo abre el nodo, y esto se pasa a lista
 
-    if PERT.out_degree[elem] != 0:
-        #print(lista, elem)
-        for elem2 in lista:                      #out_degree entrega el numero de aristas que salen del nodo. Si es 0, el nodo no tiene hijos. PRIMERA CONDICIÓN LISTA
-            if not list(PERT[elem2]):            #PERT[elem2] indica que ramo abre el nodo, y esto se pasa a lista
-                print('hello')    
-            else:
-                print(elem2)           
-    else:
-        pass
+        if PERT.out_degree[elem] != 0:
+            contador = contador+1
+        else:
+            pass
+
+    #condicion 2: ruta critica de 2 o más nodos criticos
+    #single_source_shortest_path_length(grafo, nodo inicial, saltos) retorna un diccionario con la ruta del grafo direccionado
+
+        diccionario = nx.single_source_shortest_path_length(PERT, elem, 2)
+
+        if len(diccionario)>2:
+            contador = contador+1
+        else:
+            pass
+
+    #condicion 3:
+        #atribute = nx.get_node_attributes(PERT, 'semestre')
+        
+        if PERT.out_degree[elem] != 0:
+            pNode = PERT.nodes[elem]['semestre']
+            succs = PERT.successors(elem)
+            for numb in list(succs):
+                nAux = PERT.nodes[numb]['semestre'] - PERT.nodes[elem]['semestre']
+                if nAux == 1:
+                    contador = contador+1
+
+        else:
+            pass
+        
+        #if contador != 0:
+        #    print(contador, elem)
+        
 
 
     
 
-
-    
-
-#ESTAS CONDICIONES SE DEBEN aAPLICAR PARA CADA ASIGNATURA QUE ABRA EL RAMO EN CUESTION.
+#ESTAS CONDICIONES SE DEBEN APLICAR PARA CADA ASIGNATURA QUE ABRA EL RAMO EN CUESTION.
 #Calculo 1 no cumple con la condicion 4 para contabilidad, pero si la cumple para calculo 2, por lo que es critico.
 
 
 #condicion 1: sea prerrequisito de un ramo
 #condicion 2: que sea parte de una ruta critica que pertenezaca a más de 2 semestres, e.g mecanica no sirve ya que abre calor, el cual no abre más ramos.
-#condicion 3: si un ramo requiere 2 o más ramos aprobados para tomarlo, estos serán criticos si, y solo si se pueden inscribir en la misma instancia, al mismo tiempo.
-#             e.g calculo 3 y edo abren electro, pero solo serán criticos si se pueden tomar al mismo tiempo.
-#condicion 4: el ramo será critico si el ramo que abre esta en el siguiente semestre. e.g calculo 1 abre contabilidad, pero el primero es del primer semestre
-#             y conta es del semestre 7, por lo que para el caso de conta, no es critico.  
+#condicion 3: el ramo será critico si el ramo que abre esta en el siguiente semestre. e.g calculo 1 abre contabilidad, pero el primero es del primer semestre
+#             y conta es del semestre 7, por lo que para el caso de conta, no es critico.
+#condicion 4: si un ramo requiere 2 o más ramos aprobados para tomarlo, estos serán criticos si, y solo si se pueden inscribir en la misma instancia, al mismo tiempo.
+#             e.g calculo 3 y edo abren electro, pero solo serán criticos si se pueden tomar al mismo tiempo.  
 
 
 #condicion futura: tomar en cuenta el semestre actual del alumno y el que debera egresar, por temas de la practica 2.
