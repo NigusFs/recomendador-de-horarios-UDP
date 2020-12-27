@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 def getRamoCritico(nombreExcel):
 
@@ -223,12 +224,19 @@ def getRamoCritico(nombreExcel):
             
         
             if len(ramosCriticos) < 6:
+
+                abrenR = []
+                
+                for ramo in ramosCriticos:
+                    abrenR.append(PERT.nodes[ramo]['abre'])
+                            
                 listaNoCrit = list(PERT.nodes)
+                
                 for z in range(len(listaNoCrit)):
                     if len(ramosCriticos) == 6:
                         break
                     else:
-                        if listaNoCrit[z] not in ramosCriticos:
+                        if listaNoCrit[z] not in ramosCriticos and listaNoCrit[z] not in abrenR:
                             ramosCriticos.append(listaNoCrit[z])
                         else:
                             pass
