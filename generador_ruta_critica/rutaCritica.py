@@ -7,23 +7,29 @@ import random
 def getRamoCritico(nombreExcel):
 
     PERT = nx.DiGraph()  #Grafo dirigido
-
     ramosCriticos = []
-
     excel = pd.read_excel(nombreExcel)
-
     excelArray = np.array(excel)
+    constCausal = 0
 
     while(True):
 
-        semestreAprobado = int(input('Por favor, indique hasta que semestre tiene aprobado completamente (número entre 0 y 10)\n'))
-        semestreActual = int(input('Por favor, indique el semestre que esta cursando actualmente. (número entre 0 y 10)\n'))
+        semestreAprobado = int(input('Por favor, indique hasta que semestre tiene aprobado completamente (número entre 0 y 10): \n'))
+        semestreActual = int(input('Por favor, indique el semestre que esta cursando actualmente. (número entre 0 y 10): \n'))
+        causal = input('¿Estuvo usted en causal de eliminación el semestre anterior? Responda con yes/no: \n')
     
         if semestreAprobado >= 0 and semestreAprobado <=10:
             if semestreActual >= 0 and semestreActual <=10:
-                break
+                if causal == 'yes':
+                    constCausal = 4
+                    break
+                elif causal == 'no':
+                    constCausal = 6
+                    break            
         else:
-            print('Intente nuevamente')
+            print('Datos ingresados no válidos. Intente nuevamente. \n')
+        
+        
 
 
     ramosNoAprobados = []
@@ -243,6 +249,15 @@ def getRamoCritico(nombreExcel):
             nombreCriticos = []
             for y in ramosCriticos:
                 nombreCriticos.append(PERT.nodes[y]['nombre'])
+    
+    #si estuvo en causal el semestre anterior, se le sugieron 4 asignaturas
+
+    if constCausal == 4:
+        k = len(nombreCriticos)
+        for i in range(0, k-constCausal):
+            nombreCriticos.pop()
+
+    
     return nombreCriticos
 
 print(getRamoCritico('MallaCurricular.xlsx'))
