@@ -8,6 +8,7 @@ def getRamoCritico(nombreExcel):
 
     PERT = nx.DiGraph()  #Grafo dirigido
     ramosCriticos = []
+    nombreCriticos = []
     excel = pd.read_excel(nombreExcel)
     excelArray = np.array(excel)
     constCausal = 0
@@ -15,11 +16,11 @@ def getRamoCritico(nombreExcel):
     while(True):
 
         semestreAprobado = int(input('Por favor, indique hasta que semestre tiene aprobado completamente (número entre 0 y 10): \n'))
-        semestreActual = int(input('Por favor, indique el semestre que esta cursando actualmente. (número entre 0 y 10): \n'))
+        semestreActual = int(input('Por favor, indique el semestre que esta cursando actualmente.: \n'))
         causal = input('¿Estuvo usted en causal de eliminación el semestre anterior? Responda con yes/no: \n')
     
         if semestreAprobado >= 0 and semestreAprobado <=10:
-            if semestreActual >= 0 and semestreActual <=10:
+            if semestreActual >= 0:
                 if causal == 'yes':
                     constCausal = 4
                     break
@@ -120,12 +121,12 @@ def getRamoCritico(nombreExcel):
             PERT.add_edge(idAux2, stringAux2)
 
     
-
-#nx.draw_circular(PERT, with_labels=True, font_weight='bold')
-#plt.show()
+    #si se desea una representación gráfica de los cursos que aun no ha aprobado el alumno, se deben descomentar las siguiente 2 lineas de código.
+    #nx.draw_circular(PERT, with_labels=True, font_weight='bold')
+    #plt.show()
 
 #Comienzan a establecerse los nodos criticos, los que deben cumplir con las 4 condiciones 
-    if semestreAprobado < 9:
+    if semestreAprobado < 8:
             apAux = []
             criticosAux = []
             for elem in list(PERT.nodes):
@@ -246,12 +247,34 @@ def getRamoCritico(nombreExcel):
                             ramosCriticos.append(listaNoCrit[z])
                         else:
                             pass
-            nombreCriticos = []
+            
             for y in ramosCriticos:
                 nombreCriticos.append(PERT.nodes[y]['nombre'])
     
-    #si estuvo en causal el semestre anterior, se le sugieron 4 asignaturas
+    
+    if semestreAprobado == 8:
+        numbAux = 43
+        for i in range(5):
+            if len(nombreCriticos) < 5:
+                nombreCriticos.append(PERT.nodes[numbAux]['nombre'])
+                numbAux = numbAux+1
+            else:
+                break
 
+    if semestreAprobado == 9:
+        numbAux = 48
+        for i in range(5):
+            if len(nombreCriticos) < 5:
+                nombreCriticos.append(PERT.nodes[numbAux]['nombre'])
+                numbAux = numbAux+1
+            else:
+                break
+
+    if semestreAprobado == 10:
+        gratz = 'Felicidades, usted aprobó toda la malla y solo debe escoger su actividad de titulación.'
+        return gratz
+
+#si estuvo en causal el semestre anterior, se le sugieron 4 asignaturas
     if constCausal == 4:
         k = len(nombreCriticos)
         for i in range(0, k-constCausal):
@@ -270,14 +293,13 @@ print(getRamoCritico('MallaCurricular.xlsx'))
 
 
 #condicion 1: sea prerrequisito de un ramo
-#condicion 2: que sea parte de una ruta critica que pertenezaca a más de 2 semestres, e.g mecanica no sirve ya que abre calor, el cual no abre más ramos.
-#condicion 3: el ramo será critico si el ramo que abre esta en el siguiente semestre. e.g calculo 1 abre contabilidad, pero el primero es del primer semestre
+#condicion 2: que sea parte de una ruta critica que pertenezca a más de 2 semestres, e.g mecanica no sirve ya que abre calor, el cual no abre más ramos.
+#condicion 3: el ramo será critico si el ramo que abre esta en el siguiente o subsiguiente semestre. e.g calculo 1 abre contabilidad, pero el primero es del primer semestre
 #             y conta es del semestre 7, por lo que para el caso de conta, no es critico.
-#
 
 
 # condicion futura: si un ramo requiere 2 o más ramos aprobados para tomarlo, estos serán criticos, si y solo si, se pueden inscribir en la misma instancia, al mismo tiempo.
-#             e.g calculo 3 y edo abren electro, pero solo serán criticos si se pueden tomar al mismo tiempo.  
+#                   e.g calculo 3 y edo abren electro, pero solo serán criticos si se pueden tomar al mismo tiempo.  
 #condicion futura: tomar en cuenta el semestre actual del alumno y el que debera egresar, por temas de la practica 2.
 #condicion futura: ver requisitos de los electivos. Conseguirselos con el profe, para asi establecer de mejor manera las rutas criticas.
 
