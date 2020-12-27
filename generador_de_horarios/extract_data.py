@@ -7,15 +7,12 @@ import numpy as np
 import pandas as pd
 
 
-def extract_data(): #get ramos criticos
-	arr_ramos_criticos=["PROGRAMACIÓN","PROBABILIDADES Y ESTADÍSTICAS","ELECTRÓNICA Y ELECTROTECNIA","CFG","CFG","COMUNICACIONES DIGITALES"]
+def extract_data(arr_ramos_criticos,sheet_name='2019-1'): #get ramos criticos
 	count_cfg= arr_ramos_criticos.count("CFG")
-	print(count_cfg)
-	excel = pd.read_excel('PROGRAMACION CURSOS 2017-2020.xlsx', sheet_name='2019-1')
+	excel = pd.read_excel('PROGRAMACION CURSOS 2017-2020.xlsx', sheet_name=sheet_name)
 	excelArray = np.array(excel)
 
 	lista_secciones=[]
-
 
 	for i in range (0,len(excelArray)):
 		elem=excelArray[i]
@@ -30,11 +27,6 @@ def extract_data(): #get ramos criticos
 						aux_horario.append(aux)
 						aux = elem[7].split()[1]+" "+elem[7].split()[2]
 						aux_horario.append(aux)
-
-				# ['LU JU 08:30 - 09:50']
-				# ['LU 08:30', 'JU 08:30',]
-
-				# VI 08:30 - 09:50 -> VI 08:30 
 
 					codigo = elem[4] #if isinstance(elem[4], str) == True else elem[1]
 					nombre = elem[2]
