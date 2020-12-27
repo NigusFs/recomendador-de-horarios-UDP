@@ -237,7 +237,7 @@ def getRamoCritico(nombreExcel):
                 nombreCriticos.append(PERT.nodes[y]['nombre'])
     return nombreCriticos
 
-print(getRamoCritico('MallaCurricular.xlsx'))
+#print(getRamoCritico('MallaCurricular.xlsx'))
 
                 
 

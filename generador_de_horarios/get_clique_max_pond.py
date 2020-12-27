@@ -1,14 +1,11 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from extract_data import extract_data
+from rutaCritica import getRamoCritico
 
-G = nx.Graph()
-
-arr_ramos_criticos=["PROGRAMACIÓN","PROBABILIDADES Y ESTADÍSTICAS","ELECTRÓNICA Y ELECTROTECNIA","CFG","CFG","COMUNICACIONES DIGITALES"] #llamar a rutacritica.py
-lista_secciones = extract_data(arr_ramos_criticos,'2019-1') #input del año en el que se quiere obtener las secciones disponibles
 
 def get_preferencias(): #se deben agregar mas preguntas para tener una mejor asignacion de pesos
-	print("Ingrese sus preferencia")
+	print("\nIngrese sus preferencia")
 	print("[nada(1) - poco (2) - da igual(3) - mucho(4) - bastante(5)]")
 	
 	ramos_830 = int(input("Que tanto te interesa entrar a las 8.30 hrs ?\n"))
@@ -99,12 +96,12 @@ def get_peso(value_encuesta,node): #pensar bien este sistema
 	if  value_encuesta["ramos_dificiles"] == 3*2:
 		peso_ponderado += value_encuesta["ramos_dificiles"]**5 
 	elif value_encuesta["ramos_dificiles"] > 3:
-		if node["profesor"] in profesores_buenos:
+		if node["nombre"] in ramos_dificiles:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** ponderacion_parametros["ramos_dificiles"]
 		else:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** -ponderacion_parametros["ramos_dificiles"]	
 	else:
-		if node["ramos_dificiles"] in profesores_buenos:
+		if node["nombre"] in ramos_dificiles:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** -ponderacion_parametros["ramos_dificiles"]
 		else:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** ponderacion_parametros["ramos_dificiles"]		
@@ -112,9 +109,9 @@ def get_peso(value_encuesta,node): #pensar bien este sistema
 	return peso_ponderado
 
 
-def get_clique_max_pond():
+def get_clique_max_pond(lista_secciones,arr_ramos_criticos,value_encuesta):
 
-	value_encuesta = get_preferencias()
+	G = nx.Graph()
 	
 	for elem in lista_secciones:
 		peso = round(get_peso(value_encuesta,elem))
@@ -141,18 +138,26 @@ def get_clique_max_pond():
 
 	max_clique_pond= nx.max_weight_clique(G, weight="peso") #se obtiene el maximo clique ponderado segun el peso asignado
 
+	print("\nSecciones a tomar este semestre:")
 	for elem in  max_clique_pond[0]:
-		print(G.nodes[elem]["nombre"],G.nodes[elem]["seccion"],G.nodes[elem]["horario"])
+		print(G.nodes[elem]["nombre"]," -> ",G.nodes[elem]["seccion"],"Horario -> ",G.nodes[elem]["horario"])
 
-	print(max_clique_pond) #se muestra los elementos del clique maximo
+	print("Clique maximo ponderado del grafo, compuesto por : ",max_clique_pond) #se muestra los elementos del clique maximo
 
-	#nx.draw(G, with_labels=True, font_weight='bold') #se dibuja el grafo generado
-	#plt.show()
+	nx.draw(G, with_labels=True, font_weight='bold') #se dibuja el grafo generado
+	plt.show()
 	
 	#return max_clique_pond #se coloca por si se quiere utilizar mas adelante, de momento se deja el print
 
 def main():
-	get_clique_max_pond()
+
+	#arr_ramos_criticos=['SEÑALES Y SISTEMAS', 'CONTABILIDAD Y COSTOS', 'INGENIERÍA DE SOFTWARE', 'INTRODUCCIÓN  A LA ECONOMÍA', 'MODELOS ESTOCASTICOS Y SIMULACIÓN'] #llamar a rutacritica.py
+	# no funciona con intro a la economia -> problema en extract_data!!! -> era porque el nombre de intro tiene un espacio de mas 
+	arr_ramos_criticos = getRamoCritico('MallaCurricular.xlsx') # ramos criticos #funcion en otro archivo
+	lista_secciones = extract_data(arr_ramos_criticos,'2019-1') #input del año en el que se quiere obtener las secciones disponibles #funcion en otro archivo
+	value_encuesta = get_preferencias()
+	get_clique_max_pond(lista_secciones,arr_ramos_criticos,value_encuesta)
+	print("Ramos criticos: ", arr_ramos_criticos)
 
 if __name__ == "__main__":
     main()
