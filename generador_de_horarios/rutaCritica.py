@@ -49,23 +49,16 @@ def getRamoCritico(nombreExcel):
         answer = input('¿Corresponden estos ramos a los que aun usted no ha cursado? Responda con yes/no \n')
 
         if answer == 'no':
-        
             ramos = input('Por favor, ingrese el número de las asignaturas (la primera columna de la matriz entregada previamente) que ya aprobó, separados por comas \n')
             ramos = ramos.split(",")    
 
             for elem in ramos:
                 result = np.where(asignaturasNoCursadas == int(elem))
                 asignaturasNoCursadas = np.delete(asignaturasNoCursadas, result[0][0], 0)
-
-            #print('Por lo tanto, las asignaturas que usted aún no cursa corresponden a: \n')    
-            #print(asignaturasNoCursadas)
             break
 
         elif answer == 'yes':
-            #print('Por lo tanto, las asignaturas que usted aún no cursa corresponden a: \n')
-            #print(asignaturasNoCursadas)
             break
-
         else:
             print('Por favor, ingrese una respuesta válida. \n')
 
@@ -96,7 +89,7 @@ def getRamoCritico(nombreExcel):
     
         PERT.add_nodes_from([idAux], abre=stringAux, semestre=semestreAux, nombre=nombreAux)
 
-#print(PERT.nodes.data())
+
 
     rows2 = len(idRamo)
 
@@ -175,21 +168,12 @@ def getRamoCritico(nombreExcel):
             
         
                     if contador >= 3 and len(ramosCriticos) < 6:
-                    #print(contador, elem)
                         criticosAux.append(elem)
-                    #print(criticosAux)
-                
                         for crit in range(len(criticosAux)):
-                        #print(PERT.nodes[criticosAux[crit]]['abre'])
-                        #print(type(PERT.nodes[criticosAux[crit]]['abre']))
-                        #print('time')
-                    
-                    
                             if isinstance(PERT.nodes[criticosAux[crit]]['abre'], list):
                                 if PERT.nodes[criticosAux[crit]]['abre'] in criticosAux:
                                     pass
                                 else:
-                            
                                     if criticosAux[crit] in ramosCriticos:
                                         pass                               
                                     else:
@@ -198,13 +182,9 @@ def getRamoCritico(nombreExcel):
                             elif isinstance(PERT.nodes[criticosAux[crit]]['abre'], int):
 
                                 apAux.append(PERT.nodes[criticosAux[crit]]['abre'])
-
-                            #print(apAux)
-                        
                                 if criticosAux[crit] in ramosCriticos:                        
                                     pass
                                 else:
-                                #print(PERT.nodes[criticosAux[crit]]['abre'])
                                     if criticosAux[crit] in ramosCriticos:
                                         pass
                                     else:
@@ -212,18 +192,13 @@ def getRamoCritico(nombreExcel):
         
                     rf = ramosCriticos.copy()      
                     for elemento in rf:
-                #print(elemento)
-                #print(PERT.nodes[elemento]['abre'] )
             
                 #elimina de la lista de nodos criticos a los que necesiten aprobar con anterioridad nodos criticos que ya estan en la lista.
-
                         abre = PERT.nodes[elemento]['abre']
-            
                         if isinstance(abre, list):
                             for nums in range(len(abre)):
                                 if abre[nums] in ramosCriticos:
                                     ramosCriticos.remove(abre[nums])
-
                         elif isinstance(abre, int):
                             if abre in ramosCriticos:
                                 ramosCriticos.remove(abre)
@@ -231,14 +206,10 @@ def getRamoCritico(nombreExcel):
             
         
             if len(ramosCriticos) < 6:
-
                 abrenR = []
-                
                 for ramo in ramosCriticos:
-                    abrenR.append(PERT.nodes[ramo]['abre'])
-                            
+                    abrenR.append(PERT.nodes[ramo]['abre'])       
                 listaNoCrit = list(PERT.nodes)
-                
                 for z in range(len(listaNoCrit)):
                     if len(ramosCriticos) == 6:
                         break
@@ -250,8 +221,7 @@ def getRamoCritico(nombreExcel):
             
             for y in ramosCriticos:
                 nombreCriticos.append(PERT.nodes[y]['nombre'])
-    
-    
+       
     if semestreAprobado == 8:
         numbAux = 43
         for i in range(5):
@@ -272,22 +242,17 @@ def getRamoCritico(nombreExcel):
 
     if semestreAprobado == 10:
         gratz = 'Felicidades, usted aprobó toda la malla y solo debe escoger su actividad de titulación.'
-        return gratz
+        print(gratz)
+        return []
 
 #si estuvo en causal el semestre anterior, se le sugieron 4 asignaturas
     if constCausal == 4:
         k = len(nombreCriticos)
         for i in range(0, k-constCausal):
             nombreCriticos.pop()
-
-    
+  
     return nombreCriticos
 
-#print(getRamoCritico('MallaCurricular.xlsx'))
-
-                
-
-        
 #ESTAS CONDICIONES SE DEBEN APLICAR PARA CADA ASIGNATURA QUE ABRA EL RAMO EN CUESTION.
 #Calculo 1 no cumple con la condicion 4 para contabilidad, pero si la cumple para calculo 2, por lo que es critico.
 
@@ -297,16 +262,3 @@ def getRamoCritico(nombreExcel):
 #condicion 3: el ramo será critico si el ramo que abre esta en el siguiente o subsiguiente semestre. e.g calculo 1 abre contabilidad, pero el primero es del primer semestre
 #             y conta es del semestre 7, por lo que para el caso de conta, no es critico.
 
-
-# condicion futura: si un ramo requiere 2 o más ramos aprobados para tomarlo, estos serán criticos, si y solo si, se pueden inscribir en la misma instancia, al mismo tiempo.
-#                   e.g calculo 3 y edo abren electro, pero solo serán criticos si se pueden tomar al mismo tiempo.  
-#condicion futura: tomar en cuenta el semestre actual del alumno y el que debera egresar, por temas de la practica 2.
-#condicion futura: ver requisitos de los electivos. Conseguirselos con el profe, para asi establecer de mejor manera las rutas criticas.
-
-#print(PERT.nodes.data())
-#print(aux2)
-#example = '0, 0, 1, 2, 31, 13, 41, 42'
-#print(example)
-#t = [int(s) for s in example.split(',')]
-#print(t)
-#recordar añadir la restricción del causal, para ver si se le deben recomendar 4 o 6 asignaturas para inscribir

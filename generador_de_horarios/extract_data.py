@@ -10,12 +10,10 @@ def extract_data(arr_ramos_criticos,sheet_name='2019-1'):
 	count_cfg= arr_ramos_criticos.count("CFG") #cuenta cuantos cfg se deben tomar 
 	excel = pd.read_excel('PROGRAMACION CURSOS 2017-2020.xlsx', sheet_name=sheet_name) #se obtiene los datos de la secciones de la oferta academica
 	excelArray = np.array(excel)
-	#print(arr_ramos_criticos)
 	lista_secciones=[]
 
 	for i in range (0,len(excelArray)):
 		elem=excelArray[i]
-		#print(elem)
 		if isinstance(elem[5], str):
 			if elem[5][0] == "C": #se verifica que la informacion de la fila sea una Catedra
 				aux_horario = [] 
@@ -40,8 +38,7 @@ def extract_data(arr_ramos_criticos,sheet_name='2019-1'):
 			else:
 				continue
 		else:
-			#print("name",nombre)
-			if nombre in arr_ramos_criticos : #mover esto para arriba y no guardar info innecesaria
+			if nombre in arr_ramos_criticos : 
 				alfa = {'codigo':codigo,'nombre':nombre, 'seccion':seccion, "horario":aux_horario, "profesor":profesor}
 				aux_count = 0
 				for k in range(0,len(lista_secciones)): 
@@ -50,8 +47,6 @@ def extract_data(arr_ramos_criticos,sheet_name='2019-1'):
 				if aux_count == 0:
 					lista_secciones.append(alfa)
 					
-	#print("all ",lista_secciones)
-	
 			
 	for i in range(0,count_cfg):
 		if count_cfg < 10:
