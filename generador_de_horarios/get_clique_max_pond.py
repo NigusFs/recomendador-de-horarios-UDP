@@ -1,14 +1,11 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from extract_data import extract_data
+from rutaCritica import getRamoCritico
 
-G = nx.Graph()
-
-arr_ramos_criticos=["PROGRAMACIÓN","PROBABILIDADES Y ESTADÍSTICAS","ELECTRÓNICA Y ELECTROTECNIA","CFG","CFG","COMUNICACIONES DIGITALES"] #llamar a rutacritica.py
-lista_secciones = extract_data(arr_ramos_criticos,'2019-1') #input del año en el que se quiere obtener las secciones disponibles
 
 def get_preferencias(): #se deben agregar mas preguntas para tener una mejor asignacion de pesos
-	print("Ingrese sus preferencia")
+	print("\nIngrese sus preferencia")
 	print("[nada(1) - poco (2) - da igual(3) - mucho(4) - bastante(5)]")
 	
 	ramos_830 = int(input("Que tanto te interesa entrar a las 8.30 hrs ?\n"))
@@ -31,60 +28,60 @@ def get_profesores_buenos(): # la idea es que se obtengan los datos desde una ba
 
 def get_ramos_dificiles(): # la idea es que se obtengan los datos desde una base de datos externa, en donde se recopile la percepcion de los alumnos
 	ramos_dificiles = ["ESTRUCTURAS DE DATOS","INGENIERÍA DE SOFTWARE","ARQUITECTURA DE COMPUTADORES","PROYECTO EN TICS III","ECUACIONES DIFERENCIALES","CÁLCULO III"]
-	return ramos_dificiles
+	return ramos_dificiles 
 
 def get_peso(value_encuesta,node): #pensar bien este sistema
 
-	ponderacion_parametros ={"horarios":7,"profesores":5,"ramos_dificiles":6} # dict para editar mas rapido las ponderaciones | Aqui se define la importancia de los parametros
+	ponderacion_parametros ={"horarios":7,"profesores":5,"ramos_dificiles":0}  # dict para editar mas rapido las ponderaciones | Aqui se define la importancia de los parametros
 	
 	profesores_buenos = get_profesores_buenos()
 	ramos_dificiles = get_ramos_dificiles()
 
 ### Condiciones horarias 
-	bloque_a = False
-	bloque_g = False
+	bloque_a = 0
+	bloque_g = 0
 	peso_ponderado = 1
 	try:
 		for elem in node["horario"]:	
 			if  elem[4] == str(8):
-				bloque_a=True
+				bloque_a+=1 #asi le da mas importancia a los ramos que tengan mas modulos a las 8.30
 			if  elem[3] == str(1) and elem[4] == str(7):
-				bloque_g=True
+				bloque_g+=1
 	except:
 		pass
 
 	### SECCIONES EN BLOQUE 8.30 -
-	if value_encuesta["ramos_830"] == 3*2: #se coloco un por 2 porque las respuestas estan multiplicadas por 2
-		peso_ponderado +=  value_encuesta["ramos_830"]**5
-	elif value_encuesta["ramos_830"] > 3*2: 
-		if 	bloque_a:
-			peso_ponderado += value_encuesta["ramos_830"]**ponderacion_parametros["horarios"] #este es la importancia que le damos a este parametro  # importanacia horario
+	if value_encuesta["ramos_830"] == 3+2: #se coloco un + 2 porque las respuestas estan incremendatas por 2
+		peso_ponderado +=  value_encuesta["ramos_830"]**5 #es mejor elevar la pondearcion por el valor de la encuesta
+	elif value_encuesta["ramos_830"] > 3+2: 
+		if 	bloque_a>0:
+			peso_ponderado += (value_encuesta["ramos_830"]+bloque_a)**ponderacion_parametros["horarios"] #este es la importancia que le damos a este parametro  # importanacia horario
 		else:
-			peso_ponderado += (-value_encuesta["ramos_830"])**-ponderacion_parametros["horarios"]
+			peso_ponderado += (value_encuesta["ramos_830"]+bloque_a)**-ponderacion_parametros["horarios"] # es mejor solo sumarle 0
 	else:
-		if 	bloque_a == True:
-			peso_ponderado += value_encuesta["ramos_830"]**-ponderacion_parametros["horarios"]
+		if 	bloque_a >0:
+			peso_ponderado += (value_encuesta["ramos_830"]+bloque_a)**-ponderacion_parametros["horarios"]
 		else:
-			peso_ponderado += (value_encuesta["ramos_830"])**ponderacion_parametros["horarios"]
+			peso_ponderado += (value_encuesta["ramos_830"]+bloque_a)**ponderacion_parametros["horarios"]
 
 	### SECCIONES EN BLOQUE 17.25
-	if value_encuesta["ramos_1725"] == 3*2: #arreglar lo de adentro, se puede mejorar colcoando un arreglo que esten seteados las ponderaciones -> 3 linas buscar forma
+	if value_encuesta["ramos_1725"] == 3+2: #arreglar lo de adentro, se puede mejorar colcoando un arreglo que esten seteados las ponderaciones -> 3 linas buscar forma
 		peso_ponderado += value_encuesta["ramos_1725"]**5 # si la respuesta de la encuesta es 3 se le asigna una importancia estandar
-	elif value_encuesta["ramos_1725"] > 3*2: #si al alumno le importa este valor, si se pilla la condicion se le da mas importancia al nodo si no se le quita.
-		if 	bloque_g:
-			peso_ponderado += value_encuesta["ramos_1725"]**ponderacion_parametros["horarios"] 
+	elif value_encuesta["ramos_1725"] > 3+2: #si al alumno le importa este valor, si se pilla la condicion se le da mas importancia al nodo si no se le quita.
+		if 	bloque_g >0:
+			peso_ponderado += (value_encuesta["ramos_1725"]+bloque_g)**ponderacion_parametros["horarios"] 
 		else:
-			peso_ponderado += (value_encuesta["ramos_1725"])**-ponderacion_parametros["horarios"]
+			peso_ponderado += (value_encuesta["ramos_1725"]+bloque_g)**-ponderacion_parametros["horarios"]
 	else:
-		if 	bloque_g:
-			peso_ponderado += value_encuesta["ramos_1725"]** -ponderacion_parametros["horarios"]
+		if 	bloque_g >0:
+			peso_ponderado += (value_encuesta["ramos_1725"]+bloque_g)** -ponderacion_parametros["horarios"]
 		else:
-			peso_ponderado += (value_encuesta["ramos_1725"])** ponderacion_parametros["horarios"]
+			peso_ponderado += (value_encuesta["ramos_1725"]+bloque_g)** ponderacion_parametros["horarios"]
 
 ### ENCUESTA PROFESORES
-	if  value_encuesta["profesores"] == 3*2:
+	if  value_encuesta["profesores"] == 3+2:
 		peso_ponderado += value_encuesta["profesores"]**5 
-	elif value_encuesta["profesores"] > 3*2:
+	elif value_encuesta["profesores"] > 3+2:
 		if node["profesor"] in profesores_buenos:
 			peso_ponderado += value_encuesta["profesores"] ** ponderacion_parametros["profesores"]
 		else:
@@ -96,25 +93,25 @@ def get_peso(value_encuesta,node): #pensar bien este sistema
 			peso_ponderado += value_encuesta["profesores"] ** ponderacion_parametros["profesores"]	
 
 ### ENCUESTA RAMOS DIFICILES
-	if  value_encuesta["ramos_dificiles"] == 3*2:
+	if  value_encuesta["ramos_dificiles"] == 3+2:
 		peso_ponderado += value_encuesta["ramos_dificiles"]**5 
-	elif value_encuesta["ramos_dificiles"] > 3:
-		if node["profesor"] in profesores_buenos:
+	elif value_encuesta["ramos_dificiles"] > 3+2:
+		if node["nombre"] in ramos_dificiles:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** ponderacion_parametros["ramos_dificiles"]
 		else:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** -ponderacion_parametros["ramos_dificiles"]	
 	else:
-		if node["ramos_dificiles"] in profesores_buenos:
+		if node["nombre"] in ramos_dificiles:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** -ponderacion_parametros["ramos_dificiles"]
 		else:
 			peso_ponderado += value_encuesta["ramos_dificiles"] ** ponderacion_parametros["ramos_dificiles"]		
 
-	return peso_ponderado
+	return peso_ponderado 
 
 
-def get_clique_max_pond():
+def get_clique_max_pond(lista_secciones,arr_ramos_criticos,value_encuesta):
 
-	value_encuesta = get_preferencias()
+	G = nx.Graph()
 	
 	for elem in lista_secciones:
 		peso = round(get_peso(value_encuesta,elem))
@@ -141,18 +138,26 @@ def get_clique_max_pond():
 
 	max_clique_pond= nx.max_weight_clique(G, weight="peso") #se obtiene el maximo clique ponderado segun el peso asignado
 
+	print("\nSecciones disponibles a tomar este semestre:") # si no a parecen es porque no hay un horario definido
 	for elem in  max_clique_pond[0]:
-		print(G.nodes[elem]["nombre"],G.nodes[elem]["seccion"],G.nodes[elem]["horario"])
+		print(G.nodes[elem]["nombre"]," -> ",G.nodes[elem]["seccion"],"Horario -> ",G.nodes[elem]["horario"])
 
-	print(max_clique_pond) #se muestra los elementos del clique maximo
+	print("Clique maximo ponderado del grafo, compuesto por : ",max_clique_pond) #se muestra los elementos del clique maximo
 
-	#nx.draw(G, with_labels=True, font_weight='bold') #se dibuja el grafo generado
-	#plt.show()
+	nx.draw(G, with_labels=True, font_weight='bold') #se dibuja el grafo generado
+	plt.show()
 	
 	#return max_clique_pond #se coloca por si se quiere utilizar mas adelante, de momento se deja el print
 
 def main():
-	get_clique_max_pond()
+
+	#arr_ramos_criticos=['SEÑALES Y SISTEMAS', 'CONTABILIDAD Y COSTOS', 'INGENIERÍA DE SOFTWARE', 'INTRODUCCIÓN  A LA ECONOMÍA', 'MODELOS ESTOCASTICOS Y SIMULACIÓN'] #llamar a rutacritica.py
+	# no funciona con intro a la economia -> problema en extract_data!!! -> era porque el nombre de intro tiene un espacio de mas 
+	arr_ramos_criticos = getRamoCritico('MallaCurricular.xlsx') # ramos criticos #funcion en otro archivo
+	lista_secciones = extract_data(arr_ramos_criticos,'2019-1') #input del año en el que se quiere obtener las secciones disponibles #funcion en otro archivo
+	value_encuesta = get_preferencias()
+	get_clique_max_pond(lista_secciones,arr_ramos_criticos,value_encuesta)
+	print("Ramos criticos: ", arr_ramos_criticos)
 
 if __name__ == "__main__":
     main()
