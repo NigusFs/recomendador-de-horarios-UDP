@@ -16,7 +16,7 @@ def get_preferencias(): #se deben agregar mas preguntas para tener una mejor asi
 	return {"ramos_830":ramos_830+2, "ramos_1725":ramos_1725+2 , "profesores":profesores+2, "ramos_dificiles":ramos_dificiles+2} 
 
 def get_profesores_buenos(): # la idea es que se obtengan los datos desde una base de datos externa, en donde se recopile la percepcion de los alumnos
-	profesores_buenos = ["LEON ALEJANDRO","OLIVARES MARCO ANDRES","POZO JULIO HERMINIO","LOPEZ JULIO CESAR","CAVADA JUAN PABLO"]
+	profesores_buenos = ["LEON ALEJANDRO","OLIVARES MARCO ANDRES","POZO JULIO HERMINIO","LOPEZ JULIO CESAR","CAVADA JUAN PABLO","ROSSO NICOLAS IGNACIO"]
 	profesores_buenos.append("CALCAGNO JAIME ALBERTO")
 	profesores_buenos.append("GUTIERREZ MARTIN EDUARDO")
 	return profesores_buenos
