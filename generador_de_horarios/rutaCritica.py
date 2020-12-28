@@ -14,7 +14,6 @@ def getRamoCritico(nombreExcel):
     constCausal = 0
 
     while(True):
-
         semestreAprobado = int(input('Por favor, indique hasta que semestre tiene aprobado completamente (número entre 0 y 10): \n'))
         semestreActual = int(input('Por favor, indique el semestre que esta cursando actualmente.: \n'))
         causal = input('¿Estuvo usted en causal de eliminación el semestre anterior? Responda con yes/no: \n')
@@ -26,10 +25,11 @@ def getRamoCritico(nombreExcel):
                     break
                 elif causal == 'no':
                     constCausal = 6
-                    break            
+                    break    
+                else:
+                    print('\n Datos ingresados no válidos. Intente nuevamente. \n')        
         else:
-            print('Datos ingresados no válidos. Intente nuevamente. \n')
-        
+            print('Datos ingresados no válidos. Intente nuevamente. \n') 
         
 
 
@@ -57,13 +57,13 @@ def getRamoCritico(nombreExcel):
                 result = np.where(asignaturasNoCursadas == int(elem))
                 asignaturasNoCursadas = np.delete(asignaturasNoCursadas, result[0][0], 0)
 
-            print('Por lo tanto, las asignaturas que usted aún no cursa corresponden a: \n')    
-            print(asignaturasNoCursadas)
+            #print('Por lo tanto, las asignaturas que usted aún no cursa corresponden a: \n')    
+            #print(asignaturasNoCursadas)
             break
 
         elif answer == 'yes':
-            print('Por lo tanto, las asignaturas que usted aún no cursa corresponden a: \n')
-            print(asignaturasNoCursadas)
+            #print('Por lo tanto, las asignaturas que usted aún no cursa corresponden a: \n')
+            #print(asignaturasNoCursadas)
             break
 
         else:
@@ -283,7 +283,7 @@ def getRamoCritico(nombreExcel):
     
     return nombreCriticos
 
-print(getRamoCritico('MallaCurricular.xlsx'))
+#print(getRamoCritico('MallaCurricular.xlsx'))
 
                 
 
